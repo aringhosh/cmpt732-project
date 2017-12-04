@@ -75,27 +75,27 @@ data = spark.read.csv("/home/kartiw/anaconda-workspace/python3-wokspace/Project/
 data.cache()
 data.createOrReplaceTempView('data')
 
-#getting month
+#Getting month
 from datetime import datetime
 def get_month(date):
     return datetime.strptime(date[4:6],"%m").strftime("%b")
     
 my_month = functions.udf(get_month, types.StringType())
     
-data=data.withColumn("MONTH", my_month(data['INCIDDTE'])) 
+data= data.withColumn('MONTH', my_month(data['INCIDDTE']))    
 data.createOrReplaceTempView('data')
 
 #getting codes for location, offenders, offencecode, victims
-loc = spark.read.csv("/home/kartiw/anaconda-workspace/python3-wokspace/Project/Big Data Project - Hate Crime/Data/Extracted/location.csv", header=True)
+loc = spark.read.csv("/home/kartiw/anaconda-workspace/python3-wokspace/Project/Big Data Project - Hate Crime/Data/MetaData/location.csv", header=True)
 loc.createOrReplaceTempView('loc')
 
-offender = spark.read.csv("/home/kartiw/anaconda-workspace/python3-wokspace/Project/Big Data Project - Hate Crime/Data/Extracted/offenders.csv", header=True)
+offender = spark.read.csv("/home/kartiw/anaconda-workspace/python3-wokspace/Project/Big Data Project - Hate Crime/Data/MetaData/offenders.csv", header=True)
 offender.createOrReplaceTempView('offender')
 
-victims = spark.read.csv("/home/kartiw/anaconda-workspace/python3-wokspace/Project/Big Data Project - Hate Crime/Data/Extracted/bias_victims.csv", header=True)
+victims = spark.read.csv("/home/kartiw/anaconda-workspace/python3-wokspace/Project/Big Data Project - Hate Crime/Data/MetaData/bias_victims.csv", header=True)
 victims.createOrReplaceTempView('victims')
 
-offencecode = spark.read.csv("/home/kartiw/anaconda-workspace/python3-wokspace/Project/Big Data Project - Hate Crime/Data/Extracted/offencecode.csv", header=True)
+offencecode = spark.read.csv("/home/kartiw/anaconda-workspace/python3-wokspace/Project/Big Data Project - Hate Crime/Data/MetaData/offencecode.csv", header=True)
 offencecode.createOrReplaceTempView('offencecode')
 
 data=spark.sql("""SELECT *, trim(loc.LOCCOD1EXT) AS LOCCOD1EXTNEW FROM data
