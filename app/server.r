@@ -48,7 +48,7 @@ server <- function(input, output, session) {
   
   output$of_count_race <- renderPlotly({
     data = read.csv('../input2/offence_by_offenders_race/offence_by_offenders_race.csv', header = F)
-    colnames(data) <- c('race', 'state', 'count')
+    colnames(data) <- c('state', 'race', 'count')
     
     #by offender race group
     plot_ly(data, x = ~race, y = ~count, 
@@ -60,7 +60,7 @@ server <- function(input, output, session) {
   
   output$of_count_race_st <- renderPlotly({
     data = read.csv('../input2/offence_by_offenders_race/offence_by_offenders_race.csv', header = F)
-    colnames(data) <- c('race', 'state', 'count')
+    colnames(data) <- c('state', 'race', 'count')
     plot_ly(data, x = ~state, y = ~count, type = 'bar', name = 'plot2.1', color = ~race)
   })
   
@@ -72,7 +72,7 @@ server <- function(input, output, session) {
     plot_ly(data, x = ~count, y = ~bias, type = 'bar', 
             color = ~ifelse(count > median(count), 'high crime', 'low crime'),
             colors = c('#DB5461', '#4F8687') ,
-            name = 'plot2.1') %>% layout(margin = list(l = 250))
+            name = 'plot2.1') %>% layout(margin = list(l = 300))
   })
   
   output$top_bias_by_st <- renderPlotly({ 
@@ -183,27 +183,35 @@ server <- function(input, output, session) {
   
   #tab 3 ####
   output$tl_offence <- renderPlotly({
+    
     data = read.csv('../input2/YR_MM_offence_type/YR_MM_offence_type.csv'
                     , header = F)
     colnames(data) <- c('year', 'month', 'offence', 'count')
     
-    #offence count by year
-    data1 = aggregate(count ~ year + offence, data, sum)
+    data1 = aggregate(count ~ offence, data, sum)
+    top10_types =as.character( data1[order(-data1$count),][1:10,1] )
+    
+    data = data[data$offence %in% top10_types, ]
+    data$date = paste0(data$year,data$month,'01')
+    data$date= as.Date(data$date, '%Y%b%d')
+    
+    data = aggregate(count ~ date + offence, data, sum)
     
     #reshape data- 
-    data1 <- reshape(data1, idvar = "year", timevar = "offence", direction = "wide")
+    data1 <- reshape(data, idvar = "date", timevar = "offence", direction = "wide")
     data1[is.na(data1)] <- 0 # TODO may be we want to change the colnames here
-    trace_names <- colnames(data1[,-1])
-    data1$year = as.character(data1$year) #factorize years for x axis
+    y_cols = colnames(data1[2:ncol(data1)])
+    y_cols <- substr(y_cols,7, nchar(y_cols))
     
-    p <- plot_ly(y=data1[,2], x=data1$year , type="scatter", mode="markers+lines", name = trace_names[1])
+    p <- plot_ly(y=data1[,2], x=data1$date , type="scatter", mode="markers+lines", name = y_cols[1])
     for(i in 3:ncol(data1)){
       my_y= data1[,i]
-      p <-add_trace(p, y= my_y, x=data1$year , type="scatter", mode="markers+lines", name = trace_names[i-1] )
+      p <-add_trace(p, y= my_y, x=data1$date , type="scatter", mode="markers+lines", name = y_cols[i-1] )
     }
     
     p
   })
+  
   output$tl_offence_hm <- renderPlotly({
     data = read.csv('../input2/YR_MM_offence_type/YR_MM_offence_type.csv'
                     , header = F)
@@ -308,10 +316,6 @@ server <- function(input, output, session) {
   
   #tab 4 ----
   
-  map1 <- leaflet() %>% addTiles(
-    urlTemplate = "//{s}.tiles.mapbox.com/v3/jcheng.map-5ebohr46/{z}/{x}/{y}.png",
-    attribution = 'Maps by <a href="http://www.mapbox.com/">Mapbox</a>'
-  )
   
   output$leafletPlot1 <- renderLeaflet({
     leaflet() %>% addTiles(
@@ -328,9 +332,17 @@ server <- function(input, output, session) {
   
   observe({
     offence_type = input$s4_ch1
+    # clear the map 
+    map <- leafletProxy("leafletPlot1") %>% clearMarkerClusters()
+    
+    if(offence_type == 'select one...') {
+      print('match')
+      return()
+    }
+    
     filteredData <- per.capita.2015[per.capita.2015$offence_type == offence_type,]
     
-    leafletProxy("leafletPlot1") %>% clearMarkerClusters() %>%
+    map %>%
       addMarkers( data = filteredData,
                   clusterOptions = markerClusterOptions(),
                   popup = ~paste0("<b>Offence</b>: ", offence_type,
@@ -340,6 +352,28 @@ server <- function(input, output, session) {
       )
     
   })
+  
+  
+  # tab 4 part 2 (heat map) ---- 
+  
+  hm_data = read.csv('../input2/percapita/all_crime_by_year.csv'
+                     , header = F)
+  colnames(hm_data) <- c('city', 'state', 'offence_type', 'count', 'latitude', 'longitude', 'year' )
+  
+  output$leafletPlot2 <- renderLeaflet({
+    leaflet() %>% addProviderTiles(providers$CartoDB.Positron) %>% setView( -97, 37, zoom = 4 )
+  })
+  
+  observe({
+    
+    yr = input$s4_ch2
+    fd = hm_data[hm_data$year == yr, ]
+    
+    leafletProxy("leafletPlot2") %>% clearHeatmap() %>% addHeatmap(data = fd, intensity = ~count, blur = 15, radius = 8)
+    
+  })
+  
+  
   
 } # server - top level
 

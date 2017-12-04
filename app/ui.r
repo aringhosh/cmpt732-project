@@ -9,21 +9,23 @@ src = read.csv('../input2/percapita/percapitacrime-2015.csv'
                 , header = F)
 colnames(src) <- c('city', 'state', 'offence_type', 'percapita_crime', 'latitude', 'longitude' )
 
+# print(unique(src$offence_type))
+
+
 sidebar <- dashboardSidebar(
   sidebarMenu(id = "sidebarmenu",
               
-              menuItem("Section 1", tabName = "tab1", icon = icon("glyphicon glyphicon-usd", lib = "glyphicon")),
-              menuItem("Section 2", tabName = "tab2", icon = icon("glyphicon glyphicon-shopping-cart", lib = "glyphicon")),
+              menuItem("General Trends", tabName = "tab1", icon = icon("glyphicon glyphicon-usd", lib = "glyphicon")),
+              menuItem("Places", tabName = "tab2", icon = icon("glyphicon glyphicon-shopping-cart", lib = "glyphicon")),
               menuItem("Section 3", tabName = "tab3", icon = icon("glyphicon glyphicon-shopping-cart", lib = "glyphicon")),
-              menuItem("Section 4", tabName = "tab4", icon = icon("glyphicon glyphicon-usd", lib = "glyphicon"))
-              # , menuItem("Section 4", tabName = "otif", icon = icon("cube")
-              #          ,menuSubItem('Section 4.1',
-              #                       tabName = 'otif_tab1',
-              #                       icon = icon('truck')),
-              #          menuSubItem('Section 4.2',
-              #                      tabName = 'otif_tab2',
-              #                      icon = icon('sitemap'))
-              # )
+              menuItem("Section 4", tabName = "otif", icon = icon("cube")
+                       ,menuSubItem('Section 4.1',
+                                    tabName = 'map1',
+                                    icon = icon('truck')),
+                       menuSubItem('Section 4.2',
+                                   tabName = 'map2',
+                                   icon = icon('sitemap'))
+              )
   )
 )
 
@@ -85,12 +87,27 @@ body <- dashboardBody(
               )
             )
     ), #tabItem
-    tabItem(tabName = "tab4",
+    tabItem(tabName = "map1",
             tabsetPanel(
-              tabPanel("Crime Per 1000",
+              tabPanel("Normalized crime -2015",
                        fluidRow(
-                         selectInput("s4_ch1","Offence Type", unique(src$offence), width = '95%', multiple = F),
+                         selectInput("s4_ch1","Offence Type", 
+                                     c('select one...', unique(as.character(src$offence_type))), 
+                                     width = '95%', multiple = F),
                          shinycssloaders::withSpinner(leafletOutput('leafletPlot1'))
+                       )
+                       
+              )
+            )
+    ),
+    tabItem(tabName = "map2",
+            tabsetPanel(
+              tabPanel("Crimes Trends by year",
+                       fluidRow(
+                         # selectInput("s4_ch2","Year", c('2011','2012','2013','2014','2015'), width = '95%', multiple = F),
+                         sliderInput("s4_ch2","Year", value = 2011, min = 2011, max = 2015, step = 1, 
+                                     animate = animationOptions(interval = 500, loop = TRUE), width = '95%'),
+                         shinycssloaders::withSpinner(leafletOutput('leafletPlot2'))
                        )
                        
               )
