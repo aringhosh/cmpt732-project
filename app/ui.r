@@ -15,16 +15,16 @@ colnames(src) <- c('city', 'state', 'offence_type', 'percapita_crime', 'latitude
 sidebar <- dashboardSidebar(
   sidebarMenu(id = "sidebarmenu",
               
-              menuItem("General Crime Trends", tabName = "tab1", icon = icon("glyphicon glyphicon-usd", lib = "glyphicon")),
-              menuItem("Places", tabName = "tab2", icon = icon("glyphicon glyphicon-shopping-cart", lib = "glyphicon")),
-              menuItem("Crime Trend", tabName = "tab3", icon = icon("glyphicon glyphicon-shopping-cart", lib = "glyphicon")),
-              menuItem("Section 4", tabName = "otif", icon = icon("cube")
-                       ,menuSubItem('Section 4.1',
+              menuItem("General Crime Trends", tabName = "tab1", icon = icon("bar-chart")),
+              menuItem("Places", tabName = "tab2", icon = icon("building")),
+              menuItem("Crime Timelines", tabName = "tab3", icon = icon("line-chart")),
+              menuItem("Dynamic Geo Map", tabName = "otif", icon = icon("map")
+                       ,menuSubItem('Geo Clustered Crime Map',
                                     tabName = 'map1',
-                                    icon = icon('truck')),
-                       menuSubItem('Section 4.2',
+                                    icon = icon('map-marker')),
+                       menuSubItem('Crime Intensity',
                                    tabName = 'map2',
-                                   icon = icon('sitemap'))
+                                   icon = icon('globe'))
               )
   )
 )
@@ -91,12 +91,12 @@ body <- dashboardBody(
     ), #tabItem
     tabItem(tabName = "map1",
             tabsetPanel(
-              tabPanel("Normalized crime -2015",
+              tabPanel("Per capita crime 2015",
                        fluidRow(
                          selectInput("s4_ch1","Offence Type", 
                                      c('select one...', unique(as.character(src$offence_type))), 
                                      width = '95%', multiple = F),
-                         shinycssloaders::withSpinner(leafletOutput('leafletPlot1'))
+                         shinycssloaders::withSpinner(leafletOutput('leafletPlot1',  height = 600))
                        )
                        
               )
@@ -108,7 +108,7 @@ body <- dashboardBody(
                        fluidRow(
                          # selectInput("s4_ch2","Year", c('2011','2012','2013','2014','2015'), width = '95%', multiple = F),
                          sliderInput("s4_ch2","Year", value = 2011, min = 2011, max = 2015, step = 1, 
-                                     animate = animationOptions(interval = 500, loop = TRUE), width = '95%'),
+                                     animate = animationOptions(interval = 2000, loop = TRUE), width = '95%'),
                          shinycssloaders::withSpinner(leafletOutput('leafletPlot2'))
                        )
                        
@@ -121,7 +121,9 @@ body <- dashboardBody(
   # tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "customstyle.css"))
 ) # dashboardbody
 
-dbHeader <- dashboardHeader()
+dbHeader <- dashboardHeader(
+  title = "CMPT 732 - US Crime"
+)
 # dbHeader$children[[2]]$children <-  tags$a(tags$img(src='logo.png',height='auto',width='100%')) # add logo, the .png file is under www dir
 
 ui <- dashboardPage(

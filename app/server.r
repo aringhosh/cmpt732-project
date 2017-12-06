@@ -245,7 +245,7 @@ server <- function(input, output, session) {
     
     #reshape data- 
     data1 <- reshape(data, idvar = "date", timevar = "offence", direction = "wide")
-    data1[is.na(data1)] <- 0 # TODO may be we want to change the colnames here
+    data1[is.na(data1)] <- 0
     y_cols = colnames(data1[2:ncol(data1)])
     y_cols <- substr(y_cols,7, nchar(y_cols))
     
@@ -276,9 +276,11 @@ server <- function(input, output, session) {
     plot_ly(x = data1$month, y = y_cols, z = d_mat, type ='heatmap'
             , colors = colorRamp(heatmap_colors)
             )  %>%
-      layout(margin = list(l = 230)
+      layout(
+              margin = list(l = 230, t = 50)
              , yaxis = list(categoryorder = "trace")
              , xaxis = list(categoryorder = "trace")
+             , title = 'Aggregated Monthly Incidents'
              )
   })
   
@@ -286,20 +288,23 @@ server <- function(input, output, session) {
     data = read.csv('../input2/YR_MM_offender/YR_MM_offender.csv'
                     , header = F)
     colnames(data) <- c('year', 'month', 'offender', 'count')
+    data = data[data$offender != 'Unknown',]
     
     #offender count by year
     data1 = aggregate(count ~ year + offender, data, sum)
     
     #reshape data- 
     data1 <- reshape(data1, idvar = "year", timevar = "offender", direction = "wide")
-    data1[is.na(data1)] <- 0 # TODO may be we want to change the colnames here
-    trace_names <- colnames(data1[,-1])
+    data1[is.na(data1)] <- 0
+    y_cols = colnames(data1[2:ncol(data1)])
+    y_cols <- substr(y_cols,7, nchar(y_cols))
+    
     data1$year = as.character(data1$year) #factorize years for x axis
     
-    p <- plot_ly(y=data1[,2], x=data1$year , type="scatter", mode="markers+lines", name = trace_names[1])
+    p <- plot_ly(y=data1[,2], x=data1$year , type="scatter", mode="markers+lines", name = y_cols[1])
     for(i in 3:ncol(data1)){
       my_y= data1[,i]
-      p <-add_trace(p, y= my_y, x=data1$year , type="scatter", mode="markers+lines", name = trace_names[i-1] )
+      p <-add_trace(p, y= my_y, x=data1$year , type="scatter", mode="markers+lines", name = y_cols[i-1] )
     }
     p
     
@@ -308,6 +313,7 @@ server <- function(input, output, session) {
     data = read.csv('../input2/YR_MM_offender/YR_MM_offender.csv'
                     , header = F)
     colnames(data) <- c('year', 'month', 'offender', 'count')
+    data = data[data$offender != 'Unknown',]
     
     #offender count by year
     data1 = aggregate(count ~ month + offender, data, sum)
@@ -315,11 +321,17 @@ server <- function(input, output, session) {
     data1 <- reshape(data1, idvar = "month", timevar = "offender", direction = "wide")
     data1[is.na(data1)] <- 0 # TODO may be we want to change the colnames here
     data1 <- data1[order(match(data1$month, month.abb)), ] #order month col in the correct chronological way
-    y_cols <- paste0(substr(colnames(data1[,-1]), 7 , length(colnames(data1[,-1]))), " ")
+    
+    print(colnames(data1[,-1]))
+    y_cols <- substr(colnames(data1[,-1]), 7 , nchar(colnames(data1[,-1])) )
+  
     
     d_mat <- t(as.matrix.data.frame(data1[,-1]))
-    plot_ly(x = data1$month, y = y_cols, z = d_mat, type ='heatmap', colors = colorRamp(c("#fdfffc", "#FF9F1C", "#E71D36")))  %>%
-      layout(yaxis = list(categoryorder = "trace"), xaxis = list(categoryorder = "trace"))
+    plot_ly(x = data1$month, y = y_cols, z = d_mat, type ='heatmap', colors = colorRamp(heatmap_colors))  %>%
+      layout(yaxis = list(categoryorder = "trace"), xaxis = list(categoryorder = "trace")
+             , title = 'Active Groups in Different Time of The Year'
+             , margin = list(l = 280, t = 50)
+             )
     
   })
   
@@ -333,14 +345,16 @@ server <- function(input, output, session) {
     
     #reshape data- 
     data1 <- reshape(data1, idvar = "year", timevar = "victims", direction = "wide")
-    data1[is.na(data1)] <- 0 # TODO may be we want to change the colnames here
-    trace_names <- colnames(data1[,-1])
+    data1[is.na(data1)] <- 0
+    y_cols = colnames(data1[2:ncol(data1)])
+    y_cols <- substr(y_cols,7, nchar(y_cols))
+    
     data1$year = as.character(data1$year) #factorize years for x axis
     
-    p <- plot_ly(y=data1[,2], x=data1$year , type="scatter", mode="markers+lines", name = trace_names[1])
+    p <- plot_ly(y=data1[,2], x=data1$year , type="scatter", mode="markers+lines", name = y_cols[1])
     for(i in 3:ncol(data1)){
       my_y= data1[,i]
-      p <-add_trace(p, y= my_y, x=data1$year , type="scatter", mode="markers+lines", name = trace_names[i-1] )
+      p <-add_trace(p, y= my_y, x=data1$year , type="scatter", mode="markers+lines", name = y_cols[i-1] )
     }
     p
     
@@ -360,8 +374,9 @@ server <- function(input, output, session) {
     y_cols <- paste0(substr(colnames(data1[,-1]), 7 , length(colnames(data1[,-1]))), " ")
     
     d_mat <- t(as.matrix.data.frame(data1[,-1]))
-    plot_ly(x = data1$month, y = y_cols, z = d_mat, type ='heatmap', colors = colorRamp(c("#fdfffc", "#FF9F1C", "#E71D36")))  %>%
-      layout(yaxis = list(categoryorder = "trace"), xaxis = list(categoryorder = "trace"))
+    plot_ly(x = data1$month, y = y_cols, z = d_mat, type ='heatmap', colors = colorRamp(heatmap_colors) )  %>%
+      layout(yaxis = list(categoryorder = "trace"), xaxis = list(categoryorder = "trace")
+             , margin = list(l = 200))
     
   })
   
