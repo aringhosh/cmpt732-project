@@ -15,9 +15,9 @@ colnames(src) <- c('city', 'state', 'offence_type', 'percapita_crime', 'latitude
 sidebar <- dashboardSidebar(
   sidebarMenu(id = "sidebarmenu",
               
-              menuItem("General Trends", tabName = "tab1", icon = icon("glyphicon glyphicon-usd", lib = "glyphicon")),
+              menuItem("General Crime Trends", tabName = "tab1", icon = icon("glyphicon glyphicon-usd", lib = "glyphicon")),
               menuItem("Places", tabName = "tab2", icon = icon("glyphicon glyphicon-shopping-cart", lib = "glyphicon")),
-              menuItem("Section 3", tabName = "tab3", icon = icon("glyphicon glyphicon-shopping-cart", lib = "glyphicon")),
+              menuItem("Crime Trend", tabName = "tab3", icon = icon("glyphicon glyphicon-shopping-cart", lib = "glyphicon")),
               menuItem("Section 4", tabName = "otif", icon = icon("cube")
                        ,menuSubItem('Section 4.1',
                                     tabName = 'map1',
@@ -33,21 +33,23 @@ body <- dashboardBody(
   tabItems(
     tabItem(tabName = "tab1",
             tabsetPanel(
-              tabPanel("Count",
+              tabPanel("Crime View 1",
                        fluidRow(
                          shinycssloaders::withSpinner(plotlyOutput('of_count_plot')),
+                         tags$br(),
                          shinycssloaders::withSpinner(plotlyOutput('of_count_race')),
+                         tags$br(),
                          shinycssloaders::withSpinner(plotlyOutput('of_by_bias'))
                        )
               ),
-              tabPanel("Count2",
+              tabPanel("Crime View 2",
                        fluidRow(
                          shinycssloaders::withSpinner(plotlyOutput('of_count_st_plot')),
                          shinycssloaders::withSpinner(plotlyOutput('of_count_race_st')),
                          shinycssloaders::withSpinner(plotlyOutput('top_bias_by_st'))
                        )
               ),
-              tabPanel("Heatmap 1",
+              tabPanel("Who Against Whom?",
                        fluidRow(
                          shinycssloaders::withSpinner(plotlyOutput('hunter_vs_hunted'))
                        )

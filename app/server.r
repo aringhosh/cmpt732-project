@@ -2,6 +2,7 @@ library(shiny)
 library(plotly)
 library(reshape2)
 library(leaflet)
+library(leaflet.extras)
 
 
 server <- function(input, output, session) {
@@ -14,18 +15,27 @@ server <- function(input, output, session) {
   )
   
   
+  getSortedLabels = function(labels, counts, desc = TRUE){
+    sorted_lb = factor(labels, levels = unique(labels)[order(counts, decreasing = desc)])
+    return(sorted_lb)
+  }
+  
   output$of_count_plot <- renderPlotly({
     data = read.csv('input2/offence_by_offence_type/offence_by_offence_type.csv', header = F)
     colnames(data) <- c('type', 'state', 'count')
     
     data.byType <- aggregate(count ~ type, data, sum)
+    data.byType$type = getSortedLabels(data.byType$type, data.byType$count, F) # sort
     
     #by offence type
     plot_ly(data.byType, x = ~count, y = ~type, 
             type = 'bar',
             color = ~ifelse(count > median(count), 'high crime', 'low crime'),
             colors = c('#DB5461', '#4F8687') ,
-            name = 'plot1.1', orientation = 'h') %>% layout(margin = list(l = 220))
+            orientation = 'h') %>% layout(margin = list(l = 220, t = 50)
+                                          , title = 'Offence Types'
+                                          , hovermode = "closest"
+                                          , yaxis = list(title = ''), xaxis = list(title = 'No. Of Incidents'))
     
   })
   
@@ -41,38 +51,54 @@ server <- function(input, output, session) {
         colors = 'Reds' #c('#4F8687', '#DB5461')
       ) %>%
       layout(
-        title = 'Offence By Count (2011-15)',
-        geo = g
+        title = 'Crime Incident Reports (2011-15)'
+        , margin = list(t = 50)
+        , geo = g
       )
   })
   
   output$of_count_race <- renderPlotly({
     data = read.csv('../input2/offence_by_offenders_race/offence_by_offenders_race.csv', header = F)
     colnames(data) <- c('state', 'race', 'count')
+    data = aggregate(count ~ race, data, sum)
+    data$race = getSortedLabels(data$race, data$count, F)
     
     #by offender race group
-    plot_ly(data, x = ~race, y = ~count, 
+    plot_ly(data, x = ~count, y = ~race, 
             type = 'bar',
             color = ~race,
-            colors = 'Blues',
-            name = 'plot1.1' ) 
+            colors = RColorBrewer::brewer.pal(5, "Blues")) %>% 
+      layout(margin = list(l = 250, t = 50)
+             , title = 'Offenders : Who Are We?'
+             , yaxis = list(title = ''), xaxis = list(title = 'No. Of Incidents'))
   })
   
   output$of_count_race_st <- renderPlotly({
     data = read.csv('../input2/offence_by_offenders_race/offence_by_offenders_race.csv', header = F)
     colnames(data) <- c('state', 'race', 'count')
-    plot_ly(data, x = ~state, y = ~count, type = 'bar', name = 'plot2.1', color = ~race)
+    
+    # data$state = getSortedLabels(data$state, data$count)
+    
+    plot_ly(data, x = ~state, y = ~count, type = 'bar', color = ~race, colors = 'Reds') %>%
+      layout(barmode = 'stack'
+             , title = 'Offender Group By State'
+             , yaxis = list(title = 'incidents'), xaxis = list(title = '')
+             , margin = list(t = 50))
   })
   
   output$of_by_bias <- renderPlotly({
     data = read.csv('../input2/offence_by_victim_by_state/offence_by_victim_by_state.csv', header = F)
     colnames(data) <- c('bias', 'state', 'count')
+    data = aggregate(count ~ bias, data, sum)
+    data$bias = getSortedLabels(data$bias, data$count, F)
     
     #by bias
     plot_ly(data, x = ~count, y = ~bias, type = 'bar', 
             color = ~ifelse(count > median(count), 'high crime', 'low crime'),
-            colors = c('#DB5461', '#4F8687') ,
-            name = 'plot2.1') %>% layout(margin = list(l = 300))
+            colors = c('#DB5461', '#4F8687')) %>% 
+      layout(margin = list(l = 275, t = 50)
+             , title = 'Who Are We Against?'
+             , yaxis = list(title = ''), xaxis = list(title = 'No. Of Incidents'))
   })
   
   output$top_bias_by_st <- renderPlotly({ 
@@ -80,10 +106,21 @@ server <- function(input, output, session) {
     colnames(data) <- c('bias', 'state', 'count')
     data1 = aggregate(count ~ state, data, max)
     data1 = merge(data1, data, by = c('state', 'count'))
+    data1$state = getSortedLabels(data1$state, data1$count)
     
     plot_ly(data1, x = ~state, y = ~count, 
-            type = 'bar', name = 'plot2.1', 
-            color = ~as.character(bias))
+            type = 'bar',
+            colors = 'Blues',
+            color = ~as.character(bias)
+            , marker = list(
+              line = list(color = 'rgb(8,48,107)',
+                          width = 0.7))
+            ) %>%
+      layout(
+        title = 'Dominant Bias For Each State'
+        , margin = list(t =50)
+        , yaxis = list(title = 'incidents'), xaxis = list(title = '')
+      )
   })
   
   output$hunter_vs_hunted <- renderPlotly({
@@ -107,10 +144,19 @@ server <- function(input, output, session) {
     data = read.csv('../input2/offence_by_location_by_state/offence_by_location_by_state.csv'
                     , header = F)
     colnames(data) <- c('offenceName', 'location', 'state', 'count')
+    data = aggregate(count~location, data, sum)
+    data$location = getSortedLabels(data$location, data$count, F)
     
     #count by offence by location country wide
-    plot_ly(aggregate(count~location, data, sum), x = ~count, y = ~location, type = 'bar', name = 'plot2.1') %>%
-      layout(margin = list(l = 250))
+    plot_ly(data , x = ~count, y = ~location, type = 'bar'
+            , color = ~ifelse(count > mean(count), 'above nat avg', 'below nat avg') 
+              , colors = RColorBrewer::brewer.pal(2, "RdGy")
+            ,marker = list(line = list(color = 'rgb(8,48,107)', width = 0.5))
+            ) %>%
+      layout(margin = list(l = 250, t = 50)
+             , title = 'Top Places Of Offence'
+             , yaxis = list(title = ''), xaxis = list(title = 'incidents')
+             )
   })
   
   output$of_places_maps <- renderPlotly({
@@ -172,7 +218,6 @@ server <- function(input, output, session) {
     
     #subplot merge
     subplot(p0, p1, p2, p3, nrows = 2) %>%
-      layout(title = "Crimes By Locations") %>%
       layout(annotations = list(
         list(x = 0.2 , y = 1.00, text = "Elementary School", showarrow = F, xref='paper', yref='paper'),
         list(x = 0.8 , y = 1.0, text = "Residence", showarrow = F, xref='paper', yref='paper'),
@@ -209,7 +254,7 @@ server <- function(input, output, session) {
       p <-add_trace(p, y= my_y, x=data1$date , type="scatter", mode="markers+lines", name = y_cols[i-1] )
     }
     
-    p
+    p %>% layout(hovermode = 'x', title = 'Top 10 Crimes Over Year', margin = list(t = 50))
   })
   
   output$tl_offence_hm <- renderPlotly({
@@ -221,13 +266,18 @@ server <- function(input, output, session) {
     data1 = aggregate(count ~ month + offence, data, sum)
     #reshape data wide- 
     data1 <- reshape(data1, idvar = "month", timevar = "offence", direction = "wide")
-    data1[is.na(data1)] <- 0 # TODO may be we want to change the colnames here
+    data1[is.na(data1)] <- 0
     data1 <- data1[order(match(data1$month, month.abb)), ] #order month col in the correct chronological way
     y_cols <- paste0(substr(colnames(data1[,-1]), 7 , length(colnames(data1[,-1]))), " ")
     
     d_mat <- t(as.matrix.data.frame(data1[,-1]))
-    plot_ly(x = data1$month, y = y_cols, z = d_mat, type ='heatmap', colors = colorRamp(c("#fdfffc", "#FF9F1C", "#E71D36")))  %>%
-      layout(yaxis = list(categoryorder = "trace"), xaxis = list(categoryorder = "trace"))
+    plot_ly(x = data1$month, y = y_cols, z = d_mat, type ='heatmap'
+            , colors = colorRamp(c('#FDFFFC', '#7C86BC', '#71f65f', '#f7fa3c', '#eb3c22'))
+            )  %>%
+      layout(margin = list(l = 230)
+             , yaxis = list(categoryorder = "trace")
+             , xaxis = list(categoryorder = "trace")
+             )
     
   })
   
