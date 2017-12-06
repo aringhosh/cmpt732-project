@@ -14,6 +14,7 @@ server <- function(input, output, session) {
     lakecolor = toRGB('white')
   )
   
+  heatmap_colors = c('#FDFFFC', '#7C86BC', '#71f65f', '#f7fa3c', '#eb3c22')
   
   getSortedLabels = function(labels, counts, desc = TRUE){
     sorted_lb = factor(labels, levels = unique(labels)[order(counts, decreasing = desc)])
@@ -271,14 +272,14 @@ server <- function(input, output, session) {
     y_cols <- paste0(substr(colnames(data1[,-1]), 7 , length(colnames(data1[,-1]))), " ")
     
     d_mat <- t(as.matrix.data.frame(data1[,-1]))
+    
     plot_ly(x = data1$month, y = y_cols, z = d_mat, type ='heatmap'
-            , colors = colorRamp(c('#FDFFFC', '#7C86BC', '#71f65f', '#f7fa3c', '#eb3c22'))
+            , colors = colorRamp(heatmap_colors)
             )  %>%
       layout(margin = list(l = 230)
              , yaxis = list(categoryorder = "trace")
              , xaxis = list(categoryorder = "trace")
              )
-    
   })
   
   output$tl_offender <- renderPlotly({
