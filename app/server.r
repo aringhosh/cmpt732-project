@@ -22,7 +22,7 @@ server <- function(input, output, session) {
   }
   
   output$of_count_plot <- renderPlotly({
-    data = read.csv('input2/offence_by_offence_type/offence_by_offence_type.csv', header = F)
+    data = read.csv('../input2/offence_by_offence_type/offence_by_offence_type.csv', header = F)
     colnames(data) <- c('type', 'state', 'count')
     
     data.byType <- aggregate(count ~ type, data, sum)
