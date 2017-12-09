@@ -96,7 +96,7 @@ avgnew.createOrReplaceTempView('avgnew')
 
 avgnew=spark.sql("SELECT * FROM avgnew where CRIME_PER_THOUSAND IS NOT NULL AND LAT IS NOT NULL AND LON IS NOT NULL")
 avgnew.createOrReplaceTempView('avgnew')
-
+avgnew.coalesce(1).write.csv("Output/crime_per_1000_2015")
 ######################################################################################
 #Avg crime per 1000
 location = spark.read.csv("/home/kartiw/anaconda-workspace/python3-wokspace/Project/Big Data Project - Hate Crime/Data/locationdata/")
@@ -125,7 +125,7 @@ avgnew.createOrReplaceTempView('avgnew')
 
 avgnew=spark.sql("SELECT * FROM avgnew where CRIME_PER_THOUSAND IS NOT NULL AND LAT IS NOT NULL AND LON IS NOT NULL")
 avgnew.createOrReplaceTempView('avgnew')
-
+avgnew.coalesce(1).write.csv("Output/crime_per_1000_Allyr")
 #####################################################################################
 #count of crime for 2015
 location = spark.read.csv("/home/kartiw/anaconda-workspace/python3-wokspace/Project/Big Data Project - Hate Crime/Data/locationdata/")
@@ -155,6 +155,7 @@ avgnew.createOrReplaceTempView('avgnew')
 
 avgnew=spark.sql("SELECT * FROM avgnew where COUNT_OF_CRIME IS NOT NULL AND LAT IS NOT NULL AND LON IS NOT NULL")
 avgnew.createOrReplaceTempView('avgnew')
+avgnew.coalesce(1).write.csv("Output/count_of_crime_2015")
 ################################################################################################
 
 #count of crime for ALL yr
@@ -184,5 +185,5 @@ avgnew.createOrReplaceTempView('avgnew')
 
 avgnew=spark.sql("SELECT * FROM avgnew where COUNT_OF_CRIME IS NOT NULL AND LAT IS NOT NULL AND LON IS NOT NULL")
 avgnew.createOrReplaceTempView('avgnew')
-
+avgnew.coalesce(1).write.csv("Output/count_of_crime_Allyr")
 ################################################################################################

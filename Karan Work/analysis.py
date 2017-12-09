@@ -175,4 +175,4 @@ if(sqlflag==4):
     filteredDS=sqlContext.sql(query)
     filteredDS.show()
     
-#filteredDS.coalesce(1).write.csv("Output/"+fn)
+filteredDS.coalesce(1).write.csv("Output/"+fn)
