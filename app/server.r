@@ -22,7 +22,7 @@ server <- function(input, output, session) {
   }
   
   output$of_count_plot <- renderPlotly({
-    data = read.csv('../input2/offence_by_offence_type/offence_by_offence_type.csv', header = F)
+    data = read.csv('input2/offence_by_offence_type/offence_by_offence_type.csv', header = F)
     colnames(data) <- c('type', 'state', 'count')
     
     data.byType <- aggregate(count ~ type, data, sum)
@@ -34,7 +34,7 @@ server <- function(input, output, session) {
             color = ~ifelse(count > median(count), 'high crime', 'low crime'),
             colors = c('#DB5461', '#4F8687') ,
             orientation = 'h') %>% layout(margin = list(l = 220, t = 50)
-                                          , title = 'Offence Types'
+                                          , title = 'Offence Types (2011-15)'
                                           , hovermode = "closest"
                                           , yaxis = list(title = ''), xaxis = list(title = 'No. Of Incidents'))
     
@@ -59,10 +59,11 @@ server <- function(input, output, session) {
   })
   
   output$of_count_race <- renderPlotly({
-    data = read.csv('../input2/offence_by_offenders_race/offence_by_offenders_race.csv', header = F)
+    data = read.csv('input2/offence_by_offenders_race/offence_by_offenders_race.csv', header = F)
     colnames(data) <- c('state', 'race', 'count')
     data = aggregate(count ~ race, data, sum)
     data$race = getSortedLabels(data$race, data$count, F)
+    data = data[data$race != 'Unknown',]
     
     #by offender race group
     plot_ly(data, x = ~count, y = ~race, 
@@ -70,12 +71,12 @@ server <- function(input, output, session) {
             color = ~race,
             colors = RColorBrewer::brewer.pal(5, "Blues")) %>% 
       layout(margin = list(l = 250, t = 50)
-             , title = 'Offenders : Who Are We?'
+             , title = 'Offenders : Who Are They?'
              , yaxis = list(title = ''), xaxis = list(title = 'No. Of Incidents'))
   })
   
   output$of_count_race_st <- renderPlotly({
-    data = read.csv('../input2/offence_by_offenders_race/offence_by_offenders_race.csv', header = F)
+    data = read.csv('input2/offence_by_offenders_race/offence_by_offenders_race.csv', header = F)
     colnames(data) <- c('state', 'race', 'count')
     
     # data$state = getSortedLabels(data$state, data$count)
@@ -88,7 +89,7 @@ server <- function(input, output, session) {
   })
   
   output$of_by_bias <- renderPlotly({
-    data = read.csv('../input2/offence_by_victim_by_state/offence_by_victim_by_state.csv', header = F)
+    data = read.csv('input2/offence_by_victim_by_state/offence_by_victim_by_state.csv', header = F)
     colnames(data) <- c('bias', 'state', 'count')
     data = aggregate(count ~ bias, data, sum)
     data$bias = getSortedLabels(data$bias, data$count, F)
@@ -98,12 +99,12 @@ server <- function(input, output, session) {
             color = ~ifelse(count > median(count), 'high crime', 'low crime'),
             colors = c('#DB5461', '#4F8687')) %>% 
       layout(margin = list(l = 275, t = 50)
-             , title = 'Who Are We Against?'
+             , title = 'Who Are They Against?'
              , yaxis = list(title = ''), xaxis = list(title = 'No. Of Incidents'))
   })
   
   output$top_bias_by_st <- renderPlotly({ 
-    data = read.csv('../input2/offence_by_victim_by_state/offence_by_victim_by_state.csv', header = F)
+    data = read.csv('input2/offence_by_victim_by_state/offence_by_victim_by_state.csv', header = F)
     colnames(data) <- c('bias', 'state', 'count')
     data1 = aggregate(count ~ state, data, max)
     data1 = merge(data1, data, by = c('state', 'count'))
@@ -125,7 +126,7 @@ server <- function(input, output, session) {
   })
   
   output$hunter_vs_hunted <- renderPlotly({
-    data = read.csv('../input2/heatmap/offender+victim_count.csv', header = F)
+    data = read.csv('input2/heatmap/offender+victim_count.csv', header = F)
     colnames(data) <- c('victim', 'race', 'count')
     
     # reshape the data to long format
@@ -142,7 +143,7 @@ server <- function(input, output, session) {
   })
   
   output$of_places_chart <- renderPlotly({
-    data = read.csv('../input2/offence_by_location_by_state/offence_by_location_by_state.csv'
+    data = read.csv('input2/offence_by_location_by_state/offence_by_location_by_state.csv'
                     , header = F)
     colnames(data) <- c('offenceName', 'location', 'state', 'count')
     data = aggregate(count~location, data, sum)
@@ -161,7 +162,7 @@ server <- function(input, output, session) {
   })
   
   output$of_places_maps <- renderPlotly({
-    data = read.csv('../input2/offence_by_location_by_state/offence_by_location_by_state.csv'
+    data = read.csv('input2/offence_by_location_by_state/offence_by_location_by_state.csv'
                     , header = F)
     colnames(data) <- c('offenceName', 'location', 'state', 'count')
     
@@ -230,7 +231,7 @@ server <- function(input, output, session) {
   #tab 3 ####
   output$tl_offence <- renderPlotly({
     
-    data = read.csv('../input2/YR_MM_offence_type/YR_MM_offence_type.csv'
+    data = read.csv('input2/YR_MM_offence_type/YR_MM_offence_type.csv'
                     , header = F)
     colnames(data) <- c('year', 'month', 'offence', 'count')
     
@@ -259,7 +260,7 @@ server <- function(input, output, session) {
   })
   
   output$tl_offence_hm <- renderPlotly({
-    data = read.csv('../input2/YR_MM_offence_type/YR_MM_offence_type.csv'
+    data = read.csv('input2/YR_MM_offence_type/YR_MM_offence_type.csv'
                     , header = F)
     colnames(data) <- c('year', 'month', 'offence', 'count')
     
@@ -285,7 +286,7 @@ server <- function(input, output, session) {
   })
   
   output$tl_offender <- renderPlotly({
-    data = read.csv('../input2/YR_MM_offender/YR_MM_offender.csv'
+    data = read.csv('input2/YR_MM_offender/YR_MM_offender.csv'
                     , header = F)
     colnames(data) <- c('year', 'month', 'offender', 'count')
     data = data[data$offender != 'Unknown',]
@@ -310,7 +311,7 @@ server <- function(input, output, session) {
     
   })
   output$tl_offender_hm <- renderPlotly({
-    data = read.csv('../input2/YR_MM_offender/YR_MM_offender.csv'
+    data = read.csv('input2/YR_MM_offender/YR_MM_offender.csv'
                     , header = F)
     colnames(data) <- c('year', 'month', 'offender', 'count')
     data = data[data$offender != 'Unknown',]
@@ -336,7 +337,7 @@ server <- function(input, output, session) {
   })
   
   output$tl_bias <- renderPlotly({
-    data = read.csv('../input2/YR_MM_victims/YR_MM_victims.csv'
+    data = read.csv('input2/YR_MM_victims/YR_MM_victims.csv'
                     , header = F)
     colnames(data) <- c('year', 'month', 'victims', 'count')
     
@@ -361,7 +362,7 @@ server <- function(input, output, session) {
   })
   output$tl_bias_hm <- renderPlotly({
     
-    data = read.csv('../input2/YR_MM_victims/YR_MM_victims.csv'
+    data = read.csv('input2/YR_MM_victims/YR_MM_victims.csv'
                     , header = F)
     colnames(data) <- c('year', 'month', 'victims', 'count')
     
@@ -392,7 +393,7 @@ server <- function(input, output, session) {
   
   #global 
   # per capita crime
-  per.capita.2015 = read.csv('../input2/percapita/percapitacrime-2015.csv'
+  per.capita.2015 = read.csv('input2/percapita/percapitacrime-2015.csv'
                   , header = F)
   colnames(per.capita.2015) <- c('city', 'state', 'offence_type', 'percapita_crime', 'latitude', 'longitude' )
   
@@ -402,7 +403,6 @@ server <- function(input, output, session) {
     map <- leafletProxy("leafletPlot1") %>% clearMarkerClusters()
     
     if(offence_type == 'select one...') {
-      print('match')
       return()
     }
     
@@ -422,7 +422,7 @@ server <- function(input, output, session) {
   
   # tab 4 part 2 (heat map) ---- 
   
-  hm_data = read.csv('../input2/percapita/all_crime_by_year.csv'
+  hm_data = read.csv('input2/percapita/all_crime_by_year.csv'
                      , header = F)
   colnames(hm_data) <- c('city', 'state', 'offence_type', 'count', 'latitude', 'longitude', 'year' )
   

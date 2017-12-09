@@ -5,7 +5,7 @@ library(leaflet)
 library(shinycssloaders)
 
 #global
-src = read.csv('../input2/percapita/percapitacrime-2015.csv'
+src = read.csv('input2/percapita/percapitacrime-2015.csv'
                 , header = F)
 colnames(src) <- c('city', 'state', 'offence_type', 'percapita_crime', 'latitude', 'longitude' )
 
@@ -15,7 +15,7 @@ colnames(src) <- c('city', 'state', 'offence_type', 'percapita_crime', 'latitude
 sidebar <- dashboardSidebar(
   sidebarMenu(id = "sidebarmenu",
               
-              menuItem("General Crime Trends", tabName = "tab1", icon = icon("bar-chart")),
+              menuItem("General Crime Trends 2011-15", tabName = "tab1", icon = icon("bar-chart")),
               menuItem("Places", tabName = "tab2", icon = icon("building")),
               menuItem("Crime Timelines", tabName = "tab3", icon = icon("line-chart")),
               menuItem("Dynamic Geo Map", tabName = "otif", icon = icon("map")
