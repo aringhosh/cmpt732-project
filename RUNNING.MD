@@ -44,11 +44,11 @@ spark-submit analysis_script_collection.py
 #### Frontend App
 
 **Prerequisute:**
-You need to [install R](https://cran.r-project.org/doc/manuals/r-release/R-admin.html) and the following R package to run the app. ``‘shiny’, 'shiny', 'plotly', 'shinydashboard', 'leaflet', 'leaflet.extras', 'shinycssloaders', 'reshape2' ``
+You need to [install R](https://cran.r-project.org/doc/manuals/r-release/R-admin.html) and the following R package to run the app. ``‘shiny’, 'plotly', 'shinydashboard', 'leaflet', 'leaflet.extras', 'shinycssloaders', 'reshape2' ``
 Once you install R, to install the packages it simply run from R console
 
 ```
-R> install.packages( c(‘shiny’, 'shiny', 'plotly', 'shinydashboard', 'leaflet', 'leaflet.extras', 'shinycssloaders', 'reshape2' ) )*
+R> install.packages( c(‘shiny’, 'plotly', 'shinydashboard', 'leaflet', 'leaflet.extras', 'shinycssloaders', 'reshape2' ) )*
 ```
 
 **Steps:**
