@@ -33,4 +33,4 @@ for(i in 1:nrow(input)){
   Sys.sleep(1) #rate limited
 }
 
-write.csv(out, 'export.csv', raw.names = F)
+write.csv(out, 'export.csv', row.names = F)
