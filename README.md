@@ -6,7 +6,7 @@ Our goal for this project is to analyze last five years data and to find answers
 - Muhammad Raihan Muhaimin
 
 ### Scope
-This project is done as a part of SFU 732 coursework 
+This project is done as a part of SFU CMPT 732 coursework 
 
 * Details of the project can be found at submitted report
 * How to run instrucntion can be found inside `RUNNING.MD`
