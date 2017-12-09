@@ -1,10 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Nov 26 16:49:58 2017
-
-@author: kartiw
-"""
 
 from pyspark import SparkConf, SparkContext
 from pyspark.sql import SparkSession, functions, types, SQLContext, Row
@@ -20,7 +13,7 @@ spark = SparkSession.builder.appName('BDProject').getOrCreate()
 sqlContext = SQLContext(sc)
 
 #reading data
-data = spark.read.csv("/home/kartiw/anaconda-workspace/python3-wokspace/Project/Big Data Project - Hate Crime/Data/Extracted/", header=True,  sep='\t')
+data = spark.read.csv("Extracted/", header=True,  sep='\t')
 data.cache()
 data.createOrReplaceTempView('data')
 ###################################################################################
@@ -37,16 +30,16 @@ data.createOrReplaceTempView('data')
 
 ######################################################################################
 #getting location code details
-loc = spark.read.csv("/home/kartiw/anaconda-workspace/python3-wokspace/Project/Big Data Project - Hate Crime/Data/MetaData/location.csv", header=True)
+loc = spark.read.csv("MetaData/location.csv", header=True)
 loc.createOrReplaceTempView('loc')
 #getting offender code details
-offender = spark.read.csv("/home/kartiw/anaconda-workspace/python3-wokspace/Project/Big Data Project - Hate Crime/Data/MetaData/offenders.csv", header=True)
+offender = spark.read.csv("MetaData/offenders.csv", header=True)
 offender.createOrReplaceTempView('offender')
 #getting victim code details
-victims = spark.read.csv("/home/kartiw/anaconda-workspace/python3-wokspace/Project/Big Data Project - Hate Crime/Data/MetaData/bias_victims.csv", header=True)
+victims = spark.read.csv("MetaData/bias_victims.csv", header=True)
 victims.createOrReplaceTempView('victims')
 #getting offence code details
-offencecode = spark.read.csv("/home/kartiw/anaconda-workspace/python3-wokspace/Project/Big Data Project - Hate Crime/Data/MetaData/offencecode.csv", header=True)
+offencecode = spark.read.csv("MetaData/offencecode.csv", header=True)
 offencecode.createOrReplaceTempView('offencecode')
 
 #joining all the above dataframes to get the code details
@@ -69,7 +62,7 @@ data.createOrReplaceTempView('data')
 #####################################################################################
 
 #Avg crime per 1000 for 2015
-location = spark.read.csv("/home/kartiw/anaconda-workspace/python3-wokspace/Project/Big Data Project - Hate Crime/Data/locationdata/")
+location = spark.read.csv("locationdata/")
 location.createOrReplaceTempView('location')
 
 geocodes=spark.sql("""SELECT SPLIT(_c0,',')[0] AS GCITY, TRIM(SPLIT(_c0,',')[1]) AS GSTATECOD, _c1 AS LAT,_c2 AS LON from location""")
@@ -97,9 +90,10 @@ avgnew.createOrReplaceTempView('avgnew')
 avgnew=spark.sql("SELECT * FROM avgnew where CRIME_PER_THOUSAND IS NOT NULL AND LAT IS NOT NULL AND LON IS NOT NULL")
 avgnew.createOrReplaceTempView('avgnew')
 avgnew.coalesce(1).write.csv("Output/crime_per_1000_2015")
+
 ######################################################################################
 #Avg crime per 1000
-location = spark.read.csv("/home/kartiw/anaconda-workspace/python3-wokspace/Project/Big Data Project - Hate Crime/Data/locationdata/")
+location = spark.read.csv("locationdata/")
 location.createOrReplaceTempView('location')
 
 geocodes=spark.sql("""SELECT SPLIT(_c0,',')[0] AS GCITY, TRIM(SPLIT(_c0,',')[1]) AS GSTATECOD, _c1 AS LAT,_c2 AS LON from location""")
@@ -126,9 +120,10 @@ avgnew.createOrReplaceTempView('avgnew')
 avgnew=spark.sql("SELECT * FROM avgnew where CRIME_PER_THOUSAND IS NOT NULL AND LAT IS NOT NULL AND LON IS NOT NULL")
 avgnew.createOrReplaceTempView('avgnew')
 avgnew.coalesce(1).write.csv("Output/crime_per_1000_Allyr")
+
 #####################################################################################
 #count of crime for 2015
-location = spark.read.csv("/home/kartiw/anaconda-workspace/python3-wokspace/Project/Big Data Project - Hate Crime/Data/locationdata/")
+location = spark.read.csv("locationdata/")
 location.createOrReplaceTempView('location')
 
 geocodes=spark.sql("""SELECT SPLIT(_c0,',')[0] AS GCITY, TRIM(SPLIT(_c0,',')[1]) AS GSTATECOD, _c1 AS LAT,_c2 AS LON from location""")
@@ -159,7 +154,7 @@ avgnew.coalesce(1).write.csv("Output/count_of_crime_2015")
 ################################################################################################
 
 #count of crime for ALL yr
-location = spark.read.csv("/home/kartiw/anaconda-workspace/python3-wokspace/Project/Big Data Project - Hate Crime/Data/locationdata/")
+location = spark.read.csv("locationdata/")
 location.createOrReplaceTempView('location')
 
 geocodes=spark.sql("""SELECT SPLIT(_c0,',')[0] AS GCITY, TRIM(SPLIT(_c0,',')[1]) AS GSTATECOD, _c1 AS LAT,_c2 AS LON from location""")
