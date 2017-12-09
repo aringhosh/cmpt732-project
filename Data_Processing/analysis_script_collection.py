@@ -2,11 +2,6 @@
 from pyspark import SparkConf, SparkContext
 from pyspark.sql import SparkSession, functions, types, SQLContext, Row
 from pyspark.sql.functions import *
-import sys
-from optparse import OptionParser
-import itertools
-
-#connection obj
 conf = SparkConf().setAppName('BDProject')
 sc = SparkContext.getOrCreate(conf=conf)
 spark = SparkSession.builder.appName('BDProject').getOrCreate()
@@ -58,10 +53,10 @@ data.createOrReplaceTempView('data')
 data=spark.sql("""SELECT *, trim(offencecode.OFFCOD1EXT) AS OFFCOD1EXTNEW FROM data
                LEFT JOIN offencecode USING(OFFCOD1)""")
 data.createOrReplaceTempView('data')
-#####################################################################################
+
 #####################################################################################
 
-#Avg crime per 1000 for 2015
+#Avg crime per 1000 for latest year
 location = spark.read.csv("locationdata/")
 location.createOrReplaceTempView('location')
 
@@ -92,7 +87,8 @@ avgnew.createOrReplaceTempView('avgnew')
 avgnew.coalesce(1).write.csv("Output/crime_per_1000_2015")
 
 ######################################################################################
-#Avg crime per 1000
+#Avg crime per 1000 for all year
+
 location = spark.read.csv("locationdata/")
 location.createOrReplaceTempView('location')
 
@@ -122,7 +118,8 @@ avgnew.createOrReplaceTempView('avgnew')
 avgnew.coalesce(1).write.csv("Output/crime_per_1000_Allyr")
 
 #####################################################################################
-#count of crime for 2015
+#count of crime for latest year
+
 location = spark.read.csv("locationdata/")
 location.createOrReplaceTempView('location')
 
